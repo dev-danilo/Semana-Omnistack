@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const routes = require('./routes')
+const routes = require('./routes');
 const app = express();
 
 mongoose.connect('mongodb+srv://omnistack:omnistack@cluster0-ki6c8.mongodb.net/week10?retryWrites=true&w=majority', {
@@ -16,6 +16,3 @@ app.use(routes);
 
 
 app.listen(3333); //localhost:3333
-
-
-
