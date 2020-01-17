@@ -1,0 +1,9 @@
+#app {
+  max-width: 1200px; /*largura maxima*/
+  margin: 0 auto; /*centralizado*/
+  padding: 60px 30px; /*60px em cima e embaixo e 30 direita e esquerda*/
+
+  display: flex; 
+  flex-direction: row; /*uma ao lado da outra*/
+  align-items: flex-start; /* alinhados ao topo*/
+}
