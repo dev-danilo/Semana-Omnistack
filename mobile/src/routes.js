@@ -22,6 +22,7 @@ const Routes = createAppContainer(
     }, {
         defaultNavigationOptions: {
             headerTintColor: '#FFF',
+            headerBackTitleVisible: false, //stack de activitys canto esquerdo no IOS(mostra o nome da activity anterior)
             headerStyle: {
                 backgroundColor: '#7d40e7',
             }
