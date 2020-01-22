@@ -4,91 +4,121 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import { requestPermissionsAsync, getCurrentPositionAsync } from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 
+import api from '../services/api';
+
 function Main( {navigation} ) {
-    const [currentRegion, setCurrentRegion] = useState(null);
-  
-    useEffect(() => {
-        async function loadInitialPosition() {
-            const { granted } = await requestPermissionsAsync();
-    
-            if (granted) {
-                const { coords } = await getCurrentPositionAsync({
-                    enableHighAccuracy: true
-                });
-        
-                const { latitude, longitude } = coords;
-        
-                setCurrentRegion({
-                    latitude,
-                    longitude,
-                    latitudeDelta: 0.04,
-                    longitudeDelta: 0.04
-                });
-            }
+const [devs, setDevs ] = useState([]);
+const [currentRegion, setCurrentRegion] = useState(null);
+const [ techs, setTechs] = useState('');
+
+useEffect(() => {
+    async function loadInitialPosition() {
+        const { granted } = await requestPermissionsAsync();
+
+        if (granted) {
+            const { coords } = await getCurrentPositionAsync({
+                enableHighAccuracy: true
+            });
+
+            const { latitude, longitude } = coords;
+
+            setCurrentRegion({
+                latitude,
+                longitude,
+                latitudeDelta: 0.04,
+                longitudeDelta: 0.04
+            });
         }
-  
-        loadInitialPosition();
-    }, []);
-  
-    if (!currentRegion) {
-      return null;
     }
-  
-    return (
-        //utiliza container <> </> para abrigar dois elementos REGRAA***
-        <> 
-            <MapView initialRegion={currentRegion} style={styles.map}>
-                <Marker coordinate={{ latitude: -18.7337015, longitude: -47.4980909 }}>
-                <Image style={styles.avatar} source={{ uri: 'https://avatars1.githubusercontent.com/u/29438257?s=460&v=4'}}/>
-                <Callout onPress={() => {
-                    //navegação
-                    navigation.navigate('Profile', { github_username: 'danilo49'});
+    loadInitialPosition();
+}, []);
+async function laodDevs(){
+ const { latitude, longitude } = currentRegion;
 
-                }}>
-                    <View style={styles.callout}>
-                        <Text style={styles.devName}>Danilo Pereira</Text>
-                        <Text style={styles.devBio}>Apaixonado por tecnologia.</Text>
-                        <Text style={styles.devTechs}>ReactNative, ReactJS, Node.js</Text>  
-                    </View>
-                </Callout>
-                </Marker>
-            </MapView>
+ const response = await api.get('/search', {
+  params: {
+   latitude,
+   longitude,
+   techs
+  }
+ });
+ console.log(response.data.devs);
+ setDevs(response.data.devs);
+}
 
-            <View 
-                style={styles.searchForm}>
-                <TextInput 
-                    style={styles.searchInput}
-                    placeholder="Buscar devs por techs..."
-                    placeholderTextColor='#999'
-                    autoCapitalize="words"
-                    autoCorrect={false}
-                />
+function handleRegionChanged(region) {
+ console.log(region);
+ setCurrentRegion(region);
+}
 
-            <TouchableOpacity onPress={() => {}} style={styles.loadButton}>
-                <MaterialIcons name="my-location" size={20} color="#FFF"/>
-                    
-             
-            </TouchableOpacity>
+if (!currentRegion) {
+  return null;
+}
 
-                
-            </View>
+return (
+    //utiliza container <> </> para abrigar dois elementos REGRAA***
+ <>
+  <MapView
+   onRegionChangeComplete={handleRegionChanged}
+   initialRegion={currentRegion}
+   style={styles.map}
+  >
+  {devs.map( dev => (
+    <Marker
+     key={dev._id}
+     coordinate={{
+     longitude: dev.location.coordinates[0],
+     latitude: dev.location.coordinates[1],
+    }}>
+    <Image
+     style={styles.avatar}
+     source={{ uri: dev.avatar_url }}/>
+    <Callout onPress={() => {
+     //navegação
+     navigation.navigate('Profile', { github_username: dev.github_username});
 
-        </>
-    );
+    }}>
+    <View style={styles.callout}>
+        <Text style={styles.devName}>{dev.name}</Text>
+        <Text style={styles.devBio}>{dev.bio}</Text>
+        <Text style={styles.devTechs}>{dev.techs.join(', ')}</Text>
+    </View>
+    </Callout>
+    </Marker>
+   ))}
+     </MapView>
+     <View
+      style={styles.searchForm}>
+      <TextInput
+       style={styles.searchInput}
+       placeholder="Buscar devs por techs..."
+       placeholderTextColor='#999'
+       autoCapitalize="words"
+       autoCorrect={false}
+
+       value={techs}
+       onChangeText={ text => setTechs(text)}
+     />
+     <TouchableOpacity onPress={laodDevs} style={styles.loadButton}>
+     <MaterialIcons name="my-location" size={20} color="#FFF"/>
+     </TouchableOpacity>
+     </View>
+  </>
+ );
 }
 
 const styles = StyleSheet.create({
     map: {
         flex: 1
     },
-    
+
     avatar: {
         width: 54,
         height: 54,
         borderRadius: 4,
         borderWidth: 4,
         borderColor: '#FFF',
-        borderRadius: 50
+        //borderRadius: 50
     },
 
     callout: {
@@ -148,4 +178,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Main; 
+export default Main;
