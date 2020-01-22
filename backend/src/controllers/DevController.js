@@ -2,6 +2,8 @@ const axios = require('axios');
 const Dev = require('../models/Dev');
 const parseStringAsArray = require('../utils/parseStringAsArray');
 
+const { findConnections, sendMessage } = require('../websocket');
+
 
 //o Controller geralmente tem 5 funções, sendo:
 // index: mostrar uma lista do recurso
@@ -23,24 +25,24 @@ module.exports = {
         //request requisiçao do frontend
         //response resposta para o cliente
         const { github_username, techs, latitude, longitude } = request.body;
-    
+
         let dev = await Dev.findOne({ github_username }); //pesquisa no banco de dados se ja existe algum igual ao que esta sendo cadastrado
 
         if (!dev){
             const apiResponse = await axios.get(`https://api.github.com/users/${github_username}`);
-    
+
             const { name = login, avatar_url, bio } = apiResponse.data;
-        
+
             console.log(name,avatar_url,bio);
             const techsArray = parseStringAsArray(techs);
             //trim remove espaçamentos antes e depois
             //split para quebrar a string em array strings
-            
-            const location = { 
+
+            const location = {
                 type: 'Point',
                 coordinates: [longitude,latitude],
             };
-            
+
             dev = await Dev.create({
                 github_username,
                 name,
@@ -49,6 +51,15 @@ module.exports = {
                 techs: techsArray,
                 location,
             })
+
+            // Filtrar as conexões que estão à no maximo 10km de distancia
+            // e que o novo dev tenha pelo menos uma das tecnologias filtradas
+            const sendSocketMessageTo = findConnections(
+             { latitude, longitude},
+             techsArray,
+            )
+             console.log(sendSocketMessageTo);
+             sendMessage(sendSocketMessageTo, 'new-dev' , dev);
         }
         return response.json(dev);
     }
