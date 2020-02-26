@@ -32,7 +32,7 @@
 <br>
 
 <p align="center">
-  <img alt="Frontend" src=".github/devradar.png" width="100%">
+  <img alt="Frontend" src="https://res.cloudinary.com/danilopereira/image/upload/v1582740421/DevRadar/DevRadarFrontend.png" width="100%">
 </p>
 
 ## :rocket: Tecnologias
@@ -50,7 +50,7 @@ O DevRadar é um projeto que visa conectar desenvolvedores próximos a você que
 
 ## :memo: Licença
 
-Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE.md) para mais detalhes.
+Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
